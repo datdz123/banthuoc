@@ -30,7 +30,7 @@ export default function LoginScreen({ navigation }: any) {
                 <View className="flex-1 px-5">
                     {/* Header */}
                     <View className="flex-row items-center justify-between mt-2.5 h-[50px]">
-                        <TouchableOpacity className="p-1.5" onPress={() => navigation.goBack()}>
+                        <TouchableOpacity className="p-1.5" onPress={() => navigation.navigate('MainTabs')}>
                             <AntDesign name="close" size={24} color="black" />
                         </TouchableOpacity>
 

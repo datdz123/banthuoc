@@ -1,0 +1,57 @@
+import React from 'react';
+import { View, Text, TouchableOpacity, TextInput, SafeAreaView, Platform, StatusBar } from 'react-native';
+import { Entypo, MaterialCommunityIcons, AntDesign, FontAwesome5 } from '@expo/vector-icons';
+
+export default function HomeHeader() {
+    return (
+        <View className="bg-[#1D52F1] pb-3" style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 40 }}>
+            {/* Top Row */}
+            <View className="flex-row justify-between items-center px-4 py-2">
+                <TouchableOpacity>
+                    <Entypo name="menu" size={28} color="white" />
+                </TouchableOpacity>
+
+                <View className="flex-row items-center">
+                    <MaterialCommunityIcons name="medical-bag" size={24} color="#F0712E" className="mr-2" />
+                    <View>
+                        <View className="flex-row items-baseline">
+                            <Text className="text-[#F0712E] font-bold text-[10px] italic mr-1">FPT</Text>
+                            <Text className="text-white text-[10px] font-bold">NHÀ THUỐC</Text>
+                        </View>
+                        <Text className="text-white text-sm font-black tracking-wider">LONG CHÂU</Text>
+                    </View>
+                </View>
+
+                <TouchableOpacity>
+                    <MaterialCommunityIcons name="bell" size={24} color="white" />
+                    <View className="absolute top-0 right-0 bg-red-500 w-2.5 h-2.5 rounded-full border border-[#1D52F1]" />
+                </TouchableOpacity>
+            </View>
+
+            {/* Search Bar */}
+            <View className="px-4 mt-2">
+                <View className="bg-white rounded-full flex-row items-center px-4 py-2.5">
+                    <TextInput
+                        placeholder="Tìm tên thuốc, bệnh lý, TPCN..."
+                        className="flex-1 text-sm text-[#1A1A1A]"
+                        placeholderTextColor="#8A92A6"
+                    />
+                    <TouchableOpacity className="mx-2">
+                        <MaterialCommunityIcons name="microphone" size={22} color="#1D52F1" />
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <MaterialCommunityIcons name="line-scan" size={22} color="#1D52F1" />
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+            {/* Banner Link */}
+            <View className="flex-row items-center px-4 mt-3">
+                <AntDesign name="search" size={14} color="white" />
+                <Text className="text-white text-xs ml-2">
+                    Trung tâm tiêm chủng Long Châu <Text className="underline font-bold">Tìm hiểu ngay</Text>
+                </Text>
+            </View>
+        </View>
+    );
+}
