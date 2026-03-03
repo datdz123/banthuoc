@@ -1,13 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, SafeAreaView, Platform, StatusBar } from 'react-native';
 import { Entypo, MaterialCommunityIcons, AntDesign, FontAwesome5 } from '@expo/vector-icons';
+import HomeMenu from './HomeMenu';
 
 export default function HomeHeader() {
+    const [menuVisible, setMenuVisible] = useState(false);
+
+    // Typewriter effect logic
+    const placeholders = [
+        "Tìm tên thuốc...",
+        "Tìm triệu chứng bệnh lý...",
+        "Tìm thực phẩm chức năng...",
+        "Tìm dược mỹ phẩm..."
+    ];
+    const [index, setIndex] = useState(0);
+    const [subIndex, setSubIndex] = useState(0);
+    const [reverse, setReverse] = useState(false);
+
+    useEffect(() => {
+        if (subIndex === placeholders[index].length + 1 && !reverse) {
+            const timeout = setTimeout(() => setReverse(true), 1500);
+            return () => clearTimeout(timeout);
+        }
+
+        if (subIndex === 0 && reverse) {
+            setReverse(false);
+            setIndex((prev) => (prev + 1) % placeholders.length);
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            setSubIndex((prev) => prev + (reverse ? -1 : 1));
+        }, reverse ? 40 : 80);
+
+        return () => clearTimeout(timeout);
+    }, [subIndex, index, reverse]);
+
+    const placeholderText = placeholders[index].substring(0, subIndex);
+
     return (
         <View className="bg-[#1D52F1] pb-3" style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 40 }}>
+            <HomeMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
+
             {/* Top Row */}
             <View className="flex-row justify-between items-center px-4 py-2">
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => setMenuVisible(true)}>
                     <Entypo name="menu" size={28} color="white" />
                 </TouchableOpacity>
 
@@ -32,8 +69,8 @@ export default function HomeHeader() {
             <View className="px-4 mt-2">
                 <View className="bg-white rounded-full flex-row items-center px-4 py-2.5">
                     <TextInput
-                        placeholder="Tìm tên thuốc, bệnh lý, TPCN..."
-                        className="flex-1 text-sm text-[#1A1A1A]"
+                        placeholder={placeholderText}
+                        className="flex-1 text-sm text-[#1A1A1A] py-1"
                         placeholderTextColor="#8A92A6"
                     />
                     <TouchableOpacity className="mx-2">
