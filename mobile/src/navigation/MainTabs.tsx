@@ -84,9 +84,18 @@ export default function MainTabs() {
                 name="Consult"
                 component={HomeScreen} // Temporary placeholder
                 options={{
-                    tabBarLabel: 'Tư vấn',
+                    tabBarLabel: ({ focused }) => (
+                        <Text style={{
+                            color: 'white',
+                            fontSize: 10,
+                            fontWeight: '600',
+                            marginBottom: Platform.OS === 'ios' ? 0 : 2
+                        }}>
+                            Tư vấn
+                        </Text>
+                    ),
                     tabBarIcon: () => (
-                        <MaterialCommunityIcons name="headset" size={20} color="white" />
+                        <MaterialCommunityIcons name="headset" size={24} color="white" />
                     ),
                     tabBarButton: (props) => <FloatingCenterButton {...props} />,
                 }}
@@ -117,36 +126,37 @@ export default function MainTabs() {
 
 const styles = StyleSheet.create({
     floatingButtonContainer: {
-        top: -15,
+        top: -12,
         justifyContent: 'center',
         alignItems: 'center',
     },
     floatingButton: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
         backgroundColor: 'white',
         justifyContent: 'center',
         alignItems: 'center',
         ...Platform.select({
             web: {
-                boxShadow: '0px 4px 6px rgba(0,0,0,0.1)',
+                boxShadow: '0px 4px 10px rgba(0,0,0,0.2)',
             },
             default: {
                 shadowColor: "#000",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.15,
-                shadowRadius: 5.46,
-                elevation: 9,
+                shadowOffset: { width: 0, height: 5 },
+                shadowOpacity: 0.3,
+                shadowRadius: 6,
+                elevation: 10,
             }
         })
     },
     floatingButtonInner: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 52,
+        height: 52,
+        borderRadius: 26,
         backgroundColor: '#1D52F1',
         justifyContent: 'center',
         alignItems: 'center',
+        paddingTop: 2,
     },
 });

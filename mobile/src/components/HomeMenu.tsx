@@ -9,9 +9,10 @@ import {
     Dimensions,
     Pressable,
     Platform,
-    StatusBar
+    StatusBar,
+    LayoutAnimation
 } from 'react-native';
-import { AntDesign, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { AntDesign, Feather } from '@expo/vector-icons';
 
 interface HomeMenuProps {
     visible: boolean;
@@ -22,18 +23,43 @@ const { width } = Dimensions.get('window');
 const DRAWER_WIDTH = width * 0.85;
 
 const MENU_DATA = [
-    { title: 'Thực phẩm chức năng', hasSub: true },
-    { title: 'Dược mỹ phẩm', hasSub: true },
-    { title: 'Thuốc', hasSub: true },
-    { title: 'Chăm sóc cá nhân', hasSub: true },
-    { title: 'Thiết bị y tế', hasSub: true },
+    {
+        title: 'Thực phẩm chức năng',
+        hasSub: true,
+        subItems: ['Hỗ trợ tim mạch', 'Hỗ trợ tiêu hóa', 'Vitamin & khoáng chất', 'Thảo dược/Trị liệu']
+    },
+    {
+        title: 'Dược mỹ phẩm',
+        hasSub: true,
+        subItems: ['Sửa rửa mặt', 'Kem chống nắng', 'Tẩy trang', 'Chăm sóc tóc']
+    },
+    {
+        title: 'Thuốc',
+        hasSub: true,
+        subItems: ['Thuốc giảm đau', 'Thuốc dạ dày', 'Thuốc đau họng', 'Kháng sinh']
+    },
+    {
+        title: 'Chăm sóc cá nhân',
+        hasSub: true,
+        subItems: ['Chăm sóc cơ thể', 'Chăm sóc răng miệng', 'Sản phẩm cho nam']
+    },
+    {
+        title: 'Thiết bị y tế',
+        hasSub: true,
+        subItems: ['Máy đo huyết áp', 'Máy đo đường huyết', 'Khẩu trang/Y tế']
+    },
     { title: 'Tiêm chủng', hasSub: false },
-    { title: 'Bệnh & Góc sức khỏe', hasSub: true },
+    {
+        title: 'Bệnh & Góc sức khỏe',
+        hasSub: true,
+        subItems: ['Bệnh tiểu đường', 'Bệnh dạ dày', 'Sức khỏe người già', 'Mẹo sống khỏe']
+    },
     { title: 'Hệ thống nhà thuốc', hasSub: false },
 ];
 
 export default function HomeMenu({ visible, onClose }: HomeMenuProps) {
     const [showModal, setShowModal] = useState(visible);
+    const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
     const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
 
     useEffect(() => {
@@ -54,6 +80,11 @@ export default function HomeMenu({ visible, onClose }: HomeMenuProps) {
             });
         }
     }, [visible]);
+
+    const toggleExpand = (index: number) => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setExpandedIndex(expandedIndex === index ? null : index);
+    };
 
     return (
         <Modal
@@ -110,17 +141,39 @@ export default function HomeMenu({ visible, onClose }: HomeMenuProps) {
                     <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                         <View className="pt-2 pb-6">
                             {MENU_DATA.map((item, index) => (
-                                <TouchableOpacity
-                                    key={index}
-                                    className="px-5 py-4 flex-row justify-between items-center active:bg-gray-100"
-                                >
-                                    <Text className="text-[#1A1A1A] font-bold text-[16px]">
-                                        {item.title}
-                                    </Text>
-                                    {item.hasSub && (
-                                        <Feather name="chevron-down" size={20} color="#5A5A5A" />
+                                <View key={index}>
+                                    <TouchableOpacity
+                                        onPress={() => item.hasSub ? toggleExpand(index) : null}
+                                        className="px-5 py-4 flex-row justify-between items-center active:bg-gray-100"
+                                    >
+                                        <Text className="text-[#1A1A1A] font-bold text-[16px]">
+                                            {item.title}
+                                        </Text>
+                                        {item.hasSub && (
+                                            <Feather
+                                                name={expandedIndex === index ? "chevron-up" : "chevron-down"}
+                                                size={18}
+                                                color="#5A5A5A"
+                                            />
+                                        )}
+                                    </TouchableOpacity>
+
+                                    {/* Sub Items */}
+                                    {expandedIndex === index && item.hasSub && item.subItems && (
+                                        <View className="bg-gray-50 pb-2">
+                                            {item.subItems.map((sub, sIdx) => (
+                                                <TouchableOpacity
+                                                    key={sIdx}
+                                                    className="pl-10 py-3 active:bg-blue-50"
+                                                >
+                                                    <Text className="text-[#4A4A4A] text-[15px]">
+                                                        {sub}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
                                     )}
-                                </TouchableOpacity>
+                                </View>
                             ))}
                         </View>
                     </ScrollView>
@@ -132,12 +185,12 @@ export default function HomeMenu({ visible, onClose }: HomeMenuProps) {
                         </Text>
 
                         <TouchableOpacity className="bg-[#1D52F1] rounded-full py-2.5 flex-row items-center justify-center mb-3 active:opacity-80">
-                            <Feather name="download" size={18} color="white" className="mr-2" />
+                            <Feather name="download" size={18} color="white" />
                             <Text className="text-white font-bold text-[15px] ml-2">Tải ngay</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity className="bg-[#EBF1FF] rounded-full py-2.5 flex-row items-center justify-center active:opacity-80">
-                            <Feather name="phone" size={18} color="#1D52F1" className="mr-2" />
+                            <Feather name="phone" size={18} color="#1D52F1" />
                             <Text className="text-[#1D52F1] font-bold text-[15px] ml-2">
                                 Tư vấn: 1800 6928 (Miễn phí)
                             </Text>
