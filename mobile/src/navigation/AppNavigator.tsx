@@ -4,18 +4,31 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LoginScreen from '../features/auth/LoginScreen';
 import RegisterScreen from '../features/auth/RegisterScreen';
+import SplashScreen from '../features/splash/SplashScreen';
 import MainTabs from './MainTabs';
+
+import LoginModal from '../components/LoginModal';
+import { useUIStore } from '../store/useUIStore';
+import { navigationRef } from './navigationRef';
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
+    const { isLoginModalVisible, hideLoginModal } = useUIStore();
+
     return (
-        <NavigationContainer>
-            <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Login">
-                <Stack.Screen name="Login" component={LoginScreen} />
+        <NavigationContainer ref={navigationRef}>
+            <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
+                <Stack.Screen name="Splash" component={SplashScreen} />
                 <Stack.Screen name="MainTabs" component={MainTabs} />
+                <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Register" component={RegisterScreen} />
             </Stack.Navigator>
+
+            <LoginModal
+                visible={isLoginModalVisible}
+                onClose={hideLoginModal}
+            />
         </NavigationContainer>
     );
 }
