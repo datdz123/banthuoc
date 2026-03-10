@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 interface AuthUser {
     phoneNumber: string;
     name?: string;
+    avatar?: string;
 }
 
 interface AuthState {
@@ -13,6 +14,7 @@ interface AuthState {
     login: (phoneNumber: string) => Promise<void>;
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
+    updateUser: (data: Partial<AuthUser>) => Promise<void>;
 }
 
 const safeSetItem = async (key: string, value: string) => {
@@ -60,5 +62,14 @@ export const useAuthStore = create<AuthState>((set) => ({
         } catch (e) {
             set({ isLoggedIn: false, user: null });
         }
+    },
+    updateUser: async (data) => {
+        set((state) => {
+            const newUser = state.user ? { ...state.user, ...data } : null;
+            if (newUser) {
+                safeSetItem('auth_user', JSON.stringify(newUser));
+            }
+            return { user: newUser };
+        });
     }
 }));

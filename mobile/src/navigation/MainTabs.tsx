@@ -2,14 +2,28 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Entypo, MaterialCommunityIcons, AntDesign, FontAwesome5 } from '@expo/vector-icons';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import HomeScreen from '../features/product/HomeScreen';
 import CategoryScreen from '../features/product/CategoryScreen';
 import CartScreen from '../features/cart/CartScreen';
 import OrderScreen from '../features/order/OrderScreen';
 import ProfileScreen from '../features/profile/ProfileScreen';
+import PersonalDetailScreen from '../features/profile/PersonalDetailScreen';
+import UpdateProfileScreen from '../features/profile/UpdateProfileScreen';
 
 const Tab = createBottomTabNavigator();
+const ProfileStack = createNativeStackNavigator();
+
+function ProfileStackScreen() {
+    return (
+        <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+            <ProfileStack.Screen name="ProfileMain" component={ProfileScreen} />
+            <ProfileStack.Screen name="PersonalDetail" component={PersonalDetailScreen} />
+            <ProfileStack.Screen name="UpdateProfile" component={UpdateProfileScreen} />
+        </ProfileStack.Navigator>
+    );
+}
 
 const FloatingCenterButton = (props: any) => (
     <TouchableOpacity
@@ -112,7 +126,7 @@ export default function MainTabs() {
             />
             <Tab.Screen
                 name="Profile"
-                component={ProfileScreen}
+                component={ProfileStackScreen}
                 options={{
                     tabBarLabel: 'Tài khoản',
                     tabBarIcon: ({ color, size }) => (

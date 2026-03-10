@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Image, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useUIStore } from '../../../store/useUIStore';
+import { useNavigation } from '@react-navigation/native';
 
 interface Product {
     id: string;
@@ -96,12 +97,13 @@ export default function BestSellers() {
 
 const ProductItem = ({ product }: { product: Product }) => {
     const showLoginModal = useUIStore(state => state.showLoginModal);
+    const navigation = useNavigation<any>();
 
     return (
         <TouchableOpacity
             className="bg-white rounded-2xl p-3 flex-row relative shadow-sm"
             activeOpacity={0.9}
-            onPress={showLoginModal}
+            onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
         >
             <View className="w-[100px] h-[100px] bg-white rounded-xl overflow-hidden border border-gray-100 items-center justify-center p-1">
                 <Image source={{ uri: product.image }} className="w-full h-full" resizeMode="contain" />

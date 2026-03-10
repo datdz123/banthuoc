@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Platform, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Platform, StatusBar, Image } from 'react-native';
 import { MaterialCommunityIcons, AntDesign, FontAwesome5, Ionicons, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useUIStore } from '../../store/useUIStore';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ProfileScreen() {
     const { isLoggedIn, user, logout } = useAuthStore();
     const { showLoginModal } = useUIStore();
+    const navigation = useNavigation<any>();
 
     useEffect(() => {
         if (!isLoggedIn) {
@@ -43,11 +45,15 @@ export default function ProfileScreen() {
                     className="pt-14 pb-8 px-4 flex-row items-center justify-between"
                 >
                     <View className="flex-row items-center">
-                        <View className="w-16 h-16 rounded-full border border-white/40 items-center justify-center bg-white/10 mr-4">
-                            <FontAwesome5 name="user-alt" size={30} color="#8fb2ff" />
+                        <View className="w-16 h-16 rounded-full border border-white/40 items-center justify-center bg-white/10 mr-4 overflow-hidden">
+                            {user?.avatar ? (
+                                <Image source={{ uri: user.avatar }} className="w-full h-full" />
+                            ) : (
+                                <FontAwesome5 name="user-alt" size={30} color="#8fb2ff" />
+                            )}
                         </View>
                         <View>
-                            <Text className="text-white text-[19px] font-bold mb-0.5">{user?.phoneNumber || '0344585983'}</Text>
+                            <Text className="text-white text-[19px] font-bold mb-0.5">{user?.name || user?.phoneNumber || '0344585983'}</Text>
                             <Text className="text-white/80 text-[13px]">{user?.phoneNumber ? `${user.phoneNumber.substring(0, 4)} ${user.phoneNumber.substring(4, 7)} ${user.phoneNumber.substring(7, 10)}` : '0344 585 983'}</Text>
                         </View>
                     </View>
@@ -92,7 +98,12 @@ export default function ProfileScreen() {
                     <Text className="text-gray-500 font-bold text-[14px] mb-2 px-1">Tài khoản</Text>
                     <View className="bg-white rounded-2xl mb-4 overflow-hidden border border-gray-100 shadow-sm">
                         <ProfileItem iconType="MaterialCommunityIcons" icon="qrcode-scan" title="Mã QR của tôi" />
-                        <ProfileItem iconType="Ionicons" icon="person-circle-outline" title="Thông tin cá nhân" />
+                        <ProfileItem
+                            iconType="Ionicons"
+                            icon="person-circle-outline"
+                            title="Thông tin cá nhân"
+                            onPress={() => navigation.navigate('PersonalDetail')}
+                        />
                         <ProfileItem iconType="Ionicons" icon="location-outline" title="Quản lý sổ địa chỉ" />
                         <ProfileItem iconType="Ionicons" icon="card-outline" title="Quản lý phương thức thanh toán" />
                         <ProfileItem iconType="MaterialCommunityIcons" icon="notebook-plus-outline" title="Đơn thuốc của tôi" isLast />
@@ -140,9 +151,13 @@ const OrderStatus = ({ icon, label }: { icon: string, label: string }) => (
     </TouchableOpacity>
 );
 
-const ProfileItem = ({ iconType, icon, title, isLast = false }: { iconType: 'Ionicons' | 'MaterialCommunityIcons' | 'FontAwesome5', icon: string, title: string, isLast?: boolean }) => {
+const ProfileItem = ({ iconType, icon, title, isLast = false, onPress }: { iconType: 'Ionicons' | 'MaterialCommunityIcons' | 'FontAwesome5', icon: string, title: string, isLast?: boolean, onPress?: () => void }) => {
     return (
-        <TouchableOpacity className={`flex-row items-center p-4 bg-white ${!isLast ? 'border-b border-gray-50' : ''}`} activeOpacity={0.7}>
+        <TouchableOpacity
+            onPress={onPress}
+            className={`flex-row items-center p-4 bg-white ${!isLast ? 'border-b border-gray-50' : ''}`}
+            activeOpacity={0.7}
+        >
             <View className="w-6 items-center">
                 {iconType === 'Ionicons' && <Ionicons name={icon as any} size={22} color="#1D52F1" />}
                 {iconType === 'MaterialCommunityIcons' && <MaterialCommunityIcons name={icon as any} size={22} color="#1D52F1" />}

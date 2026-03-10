@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Image, ScrollView, Platform, Animated } f
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { useUIStore } from '../../../store/useUIStore';
+import { useNavigation } from '@react-navigation/native';
 
 interface Product {
     id: string;
@@ -99,13 +100,14 @@ const TimeBox = ({ value }: { value: string }) => (
 
 const ProductCard = ({ product, width }: { product: Product, width: number }) => {
     const showLoginModal = useUIStore(state => state.showLoginModal);
+    const navigation = useNavigation<any>();
 
     return (
         <TouchableOpacity
             style={{ width }}
             className="bg-white rounded-2xl p-2 relative shadow-sm border border-white/60"
             activeOpacity={0.9}
-            onPress={showLoginModal}
+            onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
         >
             <View className="absolute top-2 left-2 z-10 bg-red-500 rounded-lg px-2 py-0.5">
                 <Text className="text-white text-[10px] font-black">{product.discount}</Text>
