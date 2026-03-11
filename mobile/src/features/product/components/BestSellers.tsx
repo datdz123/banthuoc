@@ -5,47 +5,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useUIStore } from '../../../store/useUIStore';
 import { useNavigation } from '@react-navigation/native';
 
-interface Product {
-    id: string;
-    name: string;
-    image: string;
-    price: string;
-    originalPrice: string;
-    unit: string;
-    discount: string;
-}
-
-const BEST_SELLERS_DATA: Product[] = [
-    {
-        id: '1',
-        name: 'Viên uống hỗ trợ làm đẹp da, giúp da trắng sáng, cải thiện thâm nám, hạn chế lão hóa da Perfect White Jpanwell (60 ...',
-        image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80',
-        price: '1.410.000đ',
-        originalPrice: '1.790.000đ',
-        unit: 'Hộp',
-        discount: '-380.000đ',
-    },
-    {
-        id: '2',
-        name: 'Siro giúp xương răng chắc khỏe, bổ sung vitamin D3 + K2 Brauer Baby & Kids D3 + K2 High Potency MK-7 Drops (10ml)',
-        image: 'https://images.unsplash.com/photo-1550572017-4fcdbb59cc32?w=400&q=80',
-        price: '313.000đ',
-        originalPrice: '396.000đ',
-        unit: 'Hộp',
-        discount: '-83.000đ',
-    },
-    {
-        id: '3',
-        name: 'Viên uống bổ não, tốt cho mắt và tim mạch Ultra Brain Lab Well (60 viên)',
-        image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=400&q=80',
-        price: '191.200đ',
-        originalPrice: '239.000đ',
-        unit: 'Hộp',
-        discount: '-20%',
-    },
-];
+import { useProducts, Product } from '../api/productApi';
 
 export default function BestSellers() {
+    const { data: products, isLoading } = useProducts({ limit: 5 });
+
     return (
         <View className="mt-8 rounded-[32px]  bg-[#E21F4D] relative">
             {/* Top Arched Effect */}
@@ -83,9 +47,13 @@ export default function BestSellers() {
 
             {/* Product List */}
             <View className="p-4 gap-3 relative z-10">
-                {BEST_SELLERS_DATA.map((product) => (
-                    <ProductItem key={product.id} product={product} />
-                ))}
+                {isLoading ? (
+                    <Text className="text-white text-center py-4">Đang tải...</Text>
+                ) : (
+                    products?.slice(0, 3).map((product) => (
+                        <ProductItem key={product.id} product={product} />
+                    ))
+                )}
             </View>
 
             <TouchableOpacity className="py-2 pb-5 items-center relative z-10">
@@ -99,17 +67,24 @@ const ProductItem = ({ product }: { product: Product }) => {
     const showLoginModal = useUIStore(state => state.showLoginModal);
     const navigation = useNavigation<any>();
 
+    const imageUri = product.images?.[0] || 'https://via.placeholder.com/150';
+    const hasDiscount = product.cost_price > product.retail_price;
+    const priceStr = `${product.retail_price?.toLocaleString('vi-VN')}đ`;
+    const originalPriceStr = hasDiscount ? `${product.cost_price?.toLocaleString('vi-VN')}đ` : '';
+
     return (
         <TouchableOpacity
             className="bg-white rounded-2xl p-3 flex-row relative shadow-sm"
             activeOpacity={0.9}
-            onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
+            onPress={() => navigation.navigate('ProductDetail', { productSlug: product.slug })}
         >
             <View className="w-[100px] h-[100px] bg-white rounded-xl overflow-hidden border border-gray-100 items-center justify-center p-1">
-                <Image source={{ uri: product.image }} className="w-full h-full" resizeMode="contain" />
-                <View className="absolute top-0 left-0 bg-[#E21F4D] px-1.5 py-0.5 rounded-br-lg">
-                    <Text className="text-white text-[9px] font-black">{product.discount}</Text>
-                </View>
+                <Image source={{ uri: imageUri }} className="w-full h-full" resizeMode="contain" />
+                {hasDiscount && (
+                    <View className="absolute top-0 left-0 bg-[#E21F4D] px-1.5 py-0.5 rounded-br-lg">
+                        <Text className="text-white text-[9px] font-black">GIẢM GIÁ</Text>
+                    </View>
+                )}
             </View>
 
             <View className="flex-1 ml-3 justify-between">
@@ -119,10 +94,10 @@ const ProductItem = ({ product }: { product: Product }) => {
 
                 <View>
                     <View className="flex-row items-baseline gap-1">
-                        <Text className="text-[15px] font-black text-[#1D52F1]">{product.price}</Text>
+                        <Text className="text-[15px] font-black text-[#1D52F1]">{priceStr}</Text>
                         <Text className="text-[11px] text-gray-600 font-bold">/ {product.unit}</Text>
                     </View>
-                    <Text className="text-[11px] text-gray-400 line-through">{product.originalPrice}</Text>
+                    {hasDiscount && <Text className="text-[11px] text-gray-400 line-through">{originalPriceStr}</Text>}
                 </View>
             </View>
 

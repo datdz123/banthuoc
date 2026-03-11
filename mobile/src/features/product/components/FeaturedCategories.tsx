@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, LayoutAnimation, Platform, UIManager } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, LayoutAnimation, Platform, UIManager, ActivityIndicator } from 'react-native';
+import { useCategories, Category } from '../api/productApi';
 
 if (Platform.OS === 'android') {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -8,37 +8,30 @@ if (Platform.OS === 'android') {
     }
 }
 
-interface Category {
-    id: string;
-    name: string;
-    icon: string;
-    productCount: number;
-}
-
-const CATEGORIES_DATA: Category[] = [
-    { id: '1', name: 'Thần kinh não', icon: 'brain', productCount: 59 },
-    { id: '2', name: 'Vitamin & Khoáng chất', icon: 'pill', productCount: 80 },
-    { id: '3', name: 'Tim mạch - Huyết áp', icon: 'heart-pulse', productCount: 23 },
-    { id: '4', name: 'Miễn dịch - Đề kháng', icon: 'shield-check', productCount: 53 },
-    { id: '5', name: 'Tiêu hóa', icon: 'stomach', productCount: 83 },
-    { id: '6', name: 'Sinh lý - Nội tiết tố', icon: 'gender-male-female', productCount: 45 },
-    { id: '7', name: 'Hỗ trợ hô hấp', icon: 'lungs', productCount: 30 },
-    { id: '8', name: 'Cơ xương khớp', icon: 'bone', productCount: 120 },
-    { id: '9', name: 'Chăm sóc mắt', icon: 'eye', productCount: 15 },
-    { id: '10', name: 'Hỗ trợ gan', icon: 'medication', productCount: 42 },
-];
-
 export default function FeaturedCategories() {
     const [isExpanded, setIsExpanded] = useState(false);
+    const { data: categories = [], isLoading } = useCategories();
 
     const initialItems = 6;
-    const itemsToShow = isExpanded ? CATEGORIES_DATA : CATEGORIES_DATA.slice(0, initialItems);
-    const remainingCount = CATEGORIES_DATA.length - initialItems;
+    const itemsToShow = isExpanded ? categories : categories.slice(0, initialItems);
+    const remainingCount = categories.length - initialItems;
 
     const toggleExpand = () => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setIsExpanded(!isExpanded);
     };
+
+    if (isLoading) {
+        return (
+            <View className="mt-8 items-center py-4">
+                <ActivityIndicator size="small" color="#1D52F1" />
+            </View>
+        );
+    }
+
+    if (!categories || categories.length === 0) {
+        return null;
+    }
 
     return (
         <View className="mt-8">
@@ -72,14 +65,11 @@ const CategoryCard = ({ category }: { category: Category }) => (
         className="w-[48.5%] bg-white rounded-xl p-4 mb-3 items-center border border-[#EFEFEF]"
         activeOpacity={0.7}
     >
-        <View className="w-12 h-12 justify-center items-center mb-3">
-            <MaterialCommunityIcons name={category.icon as any} size={36} color="#1D52F1" />
+        <View className="w-12 h-12 justify-center items-center mb-3 bg-blue-50/50 rounded-full">
+            <Text className="text-[28px]">{category.icon || '🛍️'}</Text>
         </View>
-        <Text className="text-[#1A1A1A] text-[13px] font-bold text-center" numberOfLines={1}>
+        <Text className="text-[#1A1A1A] text-[13px] font-bold text-center" numberOfLines={2}>
             {category.name}
-        </Text>
-        <Text className="text-[#8A92A6] text-[11px] mt-1">
-            Có {category.productCount} sản phẩm
         </Text>
     </TouchableOpacity>
 );

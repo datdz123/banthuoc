@@ -11,7 +11,8 @@ interface AuthUser {
 interface AuthState {
     isLoggedIn: boolean;
     user: AuthUser | null;
-    login: (phoneNumber: string) => Promise<void>;
+    token: string | null;
+    login: (phoneNumber?: string, password?: string) => Promise<void>;
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
     updateUser: (data: Partial<AuthUser>) => Promise<void>;
@@ -44,23 +45,47 @@ const safeDeleteItem = async (key: string) => {
 export const useAuthStore = create<AuthState>((set) => ({
     isLoggedIn: false,
     user: null,
-    login: async (phoneNumber) => {
-        const user = { phoneNumber, name: 'Khách hàng' };
-        await safeSetItem('auth_user', JSON.stringify(user));
-        set({ isLoggedIn: true, user });
+    token: null,
+    login: async (phoneNumber = "admin", password = "123456") => {
+        try {
+            // Gọi API thật để lấy token
+            const response = await fetch('https://api.duocnamviet.site/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: phoneNumber, password })
+            });
+            const resData = await response.json();
+            
+            if (resData?.success && resData?.data?.access_token) {
+                const token = resData.data.access_token;
+                const user = { phoneNumber, name: 'Quản trị viên' };
+                await safeSetItem('auth_token', token);
+                await safeSetItem('auth_user', JSON.stringify(user));
+                set({ isLoggedIn: true, user, token });
+            } else {
+                console.error("Login failed:", resData);
+            }
+        } catch (e) {
+            console.error("Login Error", e);
+        }
     },
     logout: async () => {
         await safeDeleteItem('auth_user');
-        set({ isLoggedIn: false, user: null });
+        await safeDeleteItem('auth_token');
+        set({ isLoggedIn: false, user: null, token: null });
     },
     checkAuth: async () => {
         try {
+            const token = await safeGetItem('auth_token');
             const data = await safeGetItem('auth_user');
-            if (data) {
-                set({ isLoggedIn: true, user: JSON.parse(data) });
+            if (data && token) {
+                set({ isLoggedIn: true, user: JSON.parse(data), token });
+            } else {
+                // Tự động đăng nhập mẫu để có token call API Products
+                useAuthStore.getState().login();
             }
         } catch (e) {
-            set({ isLoggedIn: false, user: null });
+            set({ isLoggedIn: false, user: null, token: null });
         }
     },
     updateUser: async (data) => {

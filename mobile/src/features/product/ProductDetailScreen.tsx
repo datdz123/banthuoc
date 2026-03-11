@@ -1,29 +1,49 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Image, Modal, Platform } from 'react-native';
-import { MaterialCommunityIcons, Ionicons, Feather, FontAwesome } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Image, Modal, Platform, ActivityIndicator } from 'react-native';
+import { MaterialCommunityIcons, Ionicons, Feather } from '@expo/vector-icons';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useProductDetail } from './api/productApi';
+import { useCartStore } from '../../store/useCartStore';
+import { Alert } from 'react-native';
 
 export default function ProductDetailScreen() {
     const navigation = useNavigation<any>();
+    const route = useRoute<any>();
+    const productSlug = route.params?.productSlug;
+
     const [showPurchaseOptions, setShowPurchaseOptions] = useState(false);
     const [showRatingModal, setShowRatingModal] = useState(false);
     const [ratingScore, setRatingScore] = useState(0);
     const [quantity, setQuantity] = useState(1);
 
-    // Static data matching the image
+    const { addItem } = useCartStore();
+
+    const { data: productData, isLoading } = useProductDetail(productSlug);
+
+    if (isLoading || !productData) {
+        return (
+            <SafeAreaView className="flex-1 bg-white items-center justify-center">
+                <ActivityIndicator size="large" color="#1D52F1" />
+            </SafeAreaView>
+        );
+    }
+
+    const hasDiscount = productData.cost_price > productData.retail_price;
+    const priceStr = `${productData.retail_price?.toLocaleString('vi-VN')}đ`;
+    const originalPriceStr = hasDiscount ? `${productData.cost_price?.toLocaleString('vi-VN')}đ` : '';
+
     const productInfo = {
-        name: 'Kem bôi viêm da cơ địa Uriage Xemose Crème Replipidante Anti-irriations 200ml',
-        price: '371.200đ',
-        originalPrice: '464.000đ',
-        discount: '-20%',
-        unit: 'Hộp',
-        points: '+371 điểm thưởng',
-        brand: 'Uriage',
-        origin: 'Pháp',
-        images: [
-            'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&q=80',
-            'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&q=80',
-        ]
+        name: productData.name,
+        price: priceStr,
+        originalPrice: originalPriceStr,
+        discount: hasDiscount ? '-GIẢM' : '',
+        unit: productData.unit || 'Hộp',
+        points: `+${productData.retail_price ? Math.floor(productData.retail_price / 1000) : 0} điểm thưởng`,
+        brand: productData.category_name || 'Khác',
+        origin: 'Việt Nam', // mock
+        images: productData.images?.length ? productData.images : ['https://via.placeholder.com/800'],
+        ingredients: productData.ingredients,
+        usage: productData.usage,
     };
 
     return (
@@ -55,15 +75,17 @@ export default function ProductDetailScreen() {
                             />
                         </View>
                         {/* Thumbnails */}
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 mt-2">
-                            <View className="flex-row space-x-3 mb-1">
-                                {[1, 2, 3, 4, 5, 6].map((item, index) => (
-                                    <View key={item} className={`w-14 h-14 rounded-lg border items-center justify-center overflow-hidden ${index === 0 ? 'border-[#1D52F1]' : 'border-gray-200'} mr-3`}>
-                                        <Image source={{ uri: productInfo.images[0] }} className="w-full h-full" resizeMode="contain" />
-                                    </View>
-                                ))}
-                            </View>
-                        </ScrollView>
+                        {productInfo.images.length > 1 && (
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 mt-2">
+                                <View className="flex-row space-x-3 mb-1">
+                                    {productInfo.images.map((imageUri, index) => (
+                                        <View key={index} className={`w-14 h-14 rounded-lg border items-center justify-center overflow-hidden ${index === 0 ? 'border-[#1D52F1]' : 'border-gray-200'} mr-3`}>
+                                            <Image source={{ uri: imageUri }} className="w-full h-full" resizeMode="contain" />
+                                        </View>
+                                    ))}
+                                </View>
+                            </ScrollView>
+                        )}
                         <Text className="text-center text-gray-500 text-xs mt-3">Mẫu mã sản phẩm có thể thay đổi theo lô hàng</Text>
                     </View>
 
@@ -102,13 +124,7 @@ export default function ProductDetailScreen() {
                             </View>
                         </View>
 
-                        <View className="flex-row items-center mt-3">
-                            <View className="w-5 h-5 bg-yellow-400 rounded-full items-center justify-center mr-2">
-                                <Text className="text-[#1D52F1] text-[10px] font-black italic">F</Text>
-                            </View>
-                            <Text className="text-orange-500 font-bold">{productInfo.points}</Text>
-                            <MaterialCommunityIcons name="help-circle" size={16} color="#9CA3AF" className="ml-1" />
-                        </View>
+
 
                         <View className="mt-6">
                             <Text className="text-[#4A5568] text-sm font-medium mb-2">Chọn đơn vị tính</Text>
@@ -122,23 +138,25 @@ export default function ProductDetailScreen() {
                     </View>
 
                     {/* Promotions Section */}
-                    <View className="bg-white mt-2 p-4">
-                        <View className="bg-orange-50 rounded-lg border border-orange-100 overflow-hidden">
-                            <View className="bg-orange-100 flex-row items-center px-3 py-2">
-                                <MaterialCommunityIcons name="brightness-percent" size={16} color="#EA580C" />
-                                <Text className="text-orange-600 font-bold ml-2">Khuyến mại được áp dụng</Text>
-                            </View>
-                            <View className="p-3">
-                                <Text className="text-[#1A1A1A] font-bold mb-3">Ưu đãi thêm:</Text>
-                                <View className="flex-row items-center bg-white border border-gray-100 rounded-lg p-3">
-                                    <View className="w-10 h-10 bg-blue-50 rounded items-center justify-center mr-3">
-                                        <MaterialCommunityIcons name="ticket-percent-outline" size={24} color="#1D52F1" />
+                    {hasDiscount && (
+                        <View className="bg-white mt-2 p-4">
+                            <View className="bg-orange-50 rounded-lg border border-orange-100 overflow-hidden">
+                                <View className="bg-orange-100 flex-row items-center px-3 py-2">
+                                    <MaterialCommunityIcons name="brightness-percent" size={16} color="#EA580C" />
+                                    <Text className="text-orange-600 font-bold ml-2">Khuyến mại được áp dụng</Text>
+                                </View>
+                                <View className="p-3">
+                                    <Text className="text-[#1A1A1A] font-bold mb-3">Ưu đãi thêm:</Text>
+                                    <View className="flex-row items-center bg-white border border-gray-100 rounded-lg p-3">
+                                        <View className="w-10 h-10 bg-blue-50 rounded items-center justify-center mr-3">
+                                            <MaterialCommunityIcons name="ticket-percent-outline" size={24} color="#1D52F1" />
+                                        </View>
+                                        <Text className="flex-1 text-[13px] text-[#4A5568]">Giảm ngay theo giá niêm yết</Text>
                                     </View>
-                                    <Text className="flex-1 text-[13px] text-[#4A5568]">Giảm ngay 20% áp dụng đến 31/03</Text>
                                 </View>
                             </View>
                         </View>
-                    </View>
+                    )}
 
                     {/* Product Specs */}
                     <View className="bg-white mt-2 p-4">
@@ -147,28 +165,38 @@ export default function ProductDetailScreen() {
                         <View className="space-y-4">
                             <View className="flex-row">
                                 <Text className="text-gray-500 text-sm w-32">Danh mục</Text>
-                                <Text className="flex-1 text-[#1D52F1] text-sm">Chăm sóc cơ thể</Text>
+                                <Text className="flex-1 text-[#1D52F1] text-sm">{productInfo.brand}</Text>
                             </View>
-                            <View className="flex-row">
-                                <Text className="text-gray-500 text-sm w-32">Quy cách</Text>
-                                <Text className="flex-1 text-[#1A1A1A] text-sm">Hộp x 200ml</Text>
-                            </View>
-                            <View className="flex-row">
-                                <Text className="text-gray-500 text-sm w-32">Mô tả ngắn</Text>
-                                <Text className="flex-1 text-[#1A1A1A] text-sm leading-5">Kem chăm sóc da Uriage Xémose Crème Relipidante Anti-Irritations giúp giữ ẩm và làm mềm da, giúp giảm tình trạng khô da.</Text>
-                            </View>
-                            <View className="flex-row">
-                                <Text className="text-gray-500 text-sm w-32">Nước sản xuất</Text>
-                                <Text className="flex-1 text-[#1A1A1A] text-sm">Pháp</Text>
-                            </View>
-                            <View className="flex-row">
-                                <Text className="text-gray-500 text-sm w-32">Nhà sản xuất</Text>
-                                <Text className="flex-1 text-[#1A1A1A] text-sm">LABORATOIRES DERMATOLOGIQUES D'URIAGE</Text>
-                            </View>
-                            <View className="flex-row">
-                                <Text className="text-gray-500 text-sm w-32">Hạn sử dụng</Text>
-                                <Text className="flex-1 text-[#1A1A1A] text-sm">36 tháng</Text>
-                            </View>
+                            {productInfo.unit && (
+                                <View className="flex-row">
+                                    <Text className="text-gray-500 text-sm w-32">Quy cách</Text>
+                                    <Text className="flex-1 text-[#1A1A1A] text-sm">{productInfo.unit}</Text>
+                                </View>
+                            )}
+                            {productInfo.ingredients && (
+                                <View className="flex-row">
+                                    <Text className="text-gray-500 text-sm w-32">Thành phần</Text>
+                                    <Text className="flex-1 text-[#1A1A1A] text-sm leading-5" numberOfLines={3}>{productInfo.ingredients.replace(/<[^>]+>/g, '')}</Text>
+                                </View>
+                            )}
+                            {productInfo.origin && (
+                                <View className="flex-row">
+                                    <Text className="text-gray-500 text-sm w-32">Nước sản xuất</Text>
+                                    <Text className="flex-1 text-[#1A1A1A] text-sm">{productInfo.origin}</Text>
+                                </View>
+                            )}
+                            {productInfo.usage && (
+                                <View className="flex-row">
+                                    <Text className="text-gray-500 text-sm w-32">Liều dùng</Text>
+                                    <Text className="flex-1 text-[#1A1A1A] text-sm" numberOfLines={3}>{productInfo.usage.replace(/<[^>]+>/g, '')}</Text>
+                                </View>
+                            )}
+                            {productData.min_stock > 0 && (
+                                <View className="flex-row">
+                                    <Text className="text-gray-500 text-sm w-32">Hạn sử dụng</Text>
+                                    <Text className="flex-1 text-[#1A1A1A] text-sm">36 tháng</Text>
+                                </View>
+                            )}
                         </View>
 
                         <TouchableOpacity className="flex-row items-center mt-4">
@@ -178,20 +206,24 @@ export default function ProductDetailScreen() {
                     </View>
 
                     {/* FAQ and Ratings Demo Area */}
-                    <View className="bg-white mt-2 p-4">
-                        <Text className="text-[#1A1A1A] text-[18px] font-bold mb-4">Câu hỏi thường gặp</Text>
-                        <View className="space-y-4 border-b border-gray-100 pb-4">
-                            <View className="flex-row justify-between items-center">
-                                <View className="flex-row items-center flex-1">
-                                    <View className="w-5 h-5 bg-gray-200 rounded-full items-center justify-center mr-2">
-                                        <Text className="text-gray-500 text-xs font-bold">?</Text>
+                    {productData.faq && productData.faq.length > 0 && (
+                        <View className="bg-white mt-2 p-4">
+                            <Text className="text-[#1A1A1A] text-[18px] font-bold mb-4">Câu hỏi thường gặp</Text>
+                            <View className="space-y-4 border-b border-gray-100 pb-4">
+                                {productData.faq.map((faq, index) => (
+                                    <View key={index} className="flex-row justify-between items-start mb-2">
+                                        <View className="flex-row items-start flex-1">
+                                            <View className="w-5 h-5 bg-gray-200 rounded-full items-center justify-center mr-2 mt-0.5">
+                                                <Text className="text-gray-500 text-xs font-bold">?</Text>
+                                            </View>
+                                            <Text className="text-[#1A1A1A] font-medium flex-1 pr-2">{faq.question}</Text>
+                                        </View>
+                                        <MaterialCommunityIcons name="chevron-down" size={20} color="#9CA3AF" />
                                     </View>
-                                    <Text className="text-[#1A1A1A] font-medium flex-1">Các bước chăm sóc cơ thể để làm trắng da?</Text>
-                                </View>
-                                <MaterialCommunityIcons name="chevron-down" size={20} color="#9CA3AF" />
+                                ))}
                             </View>
                         </View>
-                    </View>
+                    )}
 
                     {/* Ratings Demo Area */}
                     <View className="bg-white mt-2 p-4 items-center">
@@ -308,20 +340,52 @@ export default function ProductDetailScreen() {
 
                                 <View className="flex-row justify-between items-center mb-1">
                                     <Text className="text-gray-500 font-medium text-[15px]">Tạm tính</Text>
-                                    <Text className="text-[#1A1A1A] font-bold text-[18px]">{productInfo.price}</Text>
+                                    <Text className="text-[#1A1A1A] font-bold text-[18px]">{(productData.retail_price * quantity).toLocaleString('vi-VN')}đ</Text>
                                 </View>
-                                <View className="flex-row justify-between items-center mb-6">
-                                    <Text className="text-gray-500 text-[13px]">Tiết kiệm được</Text>
-                                    <Text className="text-red-500 font-medium text-[13px]">92.800đ</Text>
-                                </View>
+                                {hasDiscount && (
+                                    <View className="flex-row justify-between items-center mb-6">
+                                        <Text className="text-gray-500 text-[13px]">Tiết kiệm được</Text>
+                                        <Text className="text-red-500 font-medium text-[13px]">{((productData.cost_price - productData.retail_price) * quantity).toLocaleString('vi-VN')}đ</Text>
+                                    </View>
+                                )}
 
-                                <View className="flex-row space-x-3">
-                                    <TouchableOpacity className="flex-1 bg-[#F1F3F9] py-3.5 rounded-full items-center justify-center mr-2">
+                                <View className="flex-row space-x-3 mt-4">
+                                    <TouchableOpacity 
+                                        className="flex-1 bg-[#F1F3F9] py-3.5 rounded-full items-center justify-center mr-2"
+                                        onPress={() => {
+                                            addItem({
+                                                id: productData.id,
+                                                name: productData.name,
+                                                slug: productData.slug,
+                                                image: productInfo.images[0],
+                                                price: productData.retail_price,
+                                                originalPrice: productData.cost_price,
+                                                unit: productInfo.unit,
+                                                quantity: quantity
+                                            });
+                                            setShowPurchaseOptions(false);
+                                            Alert.alert('Thành công', 'Đã thêm sản phẩm vào giỏ hàng');
+                                        }}
+                                    >
                                         <Text className="text-[#1D52F1] font-bold text-[16px]">Thêm vào giỏ</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         className="flex-1 bg-[#1D52F1] py-3.5 rounded-full items-center justify-center ml-2"
-                                        onPress={() => setShowPurchaseOptions(false)}
+                                        onPress={() => {
+                                            setShowPurchaseOptions(false);
+                                            navigation.navigate('Checkout', { 
+                                                directItem: {
+                                                    id: productData.id,
+                                                    name: productData.name,
+                                                    slug: productData.slug,
+                                                    image: productInfo.images[0],
+                                                    price: productData.retail_price,
+                                                    originalPrice: productData.cost_price,
+                                                    unit: productInfo.unit,
+                                                    quantity: quantity
+                                                }
+                                            });
+                                        }}
                                     >
                                         <Text className="text-white font-bold text-[16px]">Mua ngay</Text>
                                     </TouchableOpacity>

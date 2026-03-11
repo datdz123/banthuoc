@@ -5,26 +5,11 @@ import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { useUIStore } from '../../../store/useUIStore';
 import { useNavigation } from '@react-navigation/native';
 
-interface Product {
-    id: string;
-    name: string;
-    image: string;
-    price: string;
-    originalPrice: string;
-    discount: string;
-    unit: string;
-    soldPercentage: number;
-    isHot?: boolean;
-}
-
-const FLASH_SALE_DATA: Product[] = [
-    { id: '1', name: 'Kem dưỡng da chuyên sâu Cerave', image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80', price: '266.000đ', originalPrice: '380.000đ', discount: '-30%', unit: 'Hũ 453g', soldPercentage: 71 },
-    { id: '2', name: 'Dầu cá Omega-3 Fish Oil', image: 'https://images.unsplash.com/photo-1550572017-4fcdbb59cc32?w=400&q=80', price: '203.000đ', originalPrice: '290.000đ', discount: '-30%', unit: 'Lọ 100 viên', soldPercentage: 84, isHot: true },
-    { id: '3', name: 'Máy đo huyết áp điện tử Microlife', image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=400&q=80', price: '665.000đ', originalPrice: '950.000đ', discount: '-30%', unit: 'Bộ', soldPercentage: 47 },
-    { id: '4', name: 'Sữa bột Similac số 1 cho trẻ sơ sinh', image: 'https://images.unsplash.com/photo-1555243896-c709bfa0b564?w=400&q=80', price: '364.000đ', originalPrice: '520.000đ', discount: '-30%', unit: 'Lon 900g', soldPercentage: 60 },
-];
+import { useProducts, Product } from '../api/productApi';
 
 export default function FlashSale() {
+    const { data: products } = useProducts({ limit: 4 });
+    const flashSaleData = products?.slice(0, 4) || [];
     const pulseAnim = React.useRef(new Animated.Value(1)).current;
     const scrollX = React.useRef(new Animated.Value(0)).current;
     const [timeLeft, setTimeLeft] = useState({ hours: 3, minutes: 44, seconds: 11 });
@@ -78,13 +63,13 @@ export default function FlashSale() {
             </View>
 
             <Animated.ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: GAP, paddingRight: 20 }} snapToInterval={SNAP_INTERVAL} decelerationRate="fast" onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: false })} scrollEventThrottle={16}>
-                {FLASH_SALE_DATA.map((product) => (
+                {flashSaleData.map((product) => (
                     <ProductCard key={product.id} product={product} width={CARD_WIDTH} />
                 ))}
             </Animated.ScrollView>
 
             <View className="flex-row justify-center items-center gap-1.5 mt-5">
-                {FLASH_SALE_DATA.map((_, i) => (
+                {flashSaleData.map((_, i) => (
                     <Animated.View key={i} style={{ width: scrollX.interpolate({ inputRange: [(i - 1) * SNAP_INTERVAL, i * SNAP_INTERVAL, (i + 1) * SNAP_INTERVAL], outputRange: [6, 20, 6], extrapolate: 'clamp' }), opacity: scrollX.interpolate({ inputRange: [(i - 1) * SNAP_INTERVAL, i * SNAP_INTERVAL, (i + 1) * SNAP_INTERVAL], outputRange: [0.4, 1, 0.4], extrapolate: 'clamp' }), height: 6, borderRadius: 3, backgroundColor: 'white' }} />
                 ))}
             </View>
@@ -102,32 +87,40 @@ const ProductCard = ({ product, width }: { product: Product, width: number }) =>
     const showLoginModal = useUIStore(state => state.showLoginModal);
     const navigation = useNavigation<any>();
 
+    const imageUri = product.images?.[0] || 'https://via.placeholder.com/150';
+    const hasDiscount = product.cost_price > product.retail_price;
+    const priceStr = `${product.retail_price?.toLocaleString('vi-VN')}đ`;
+    const originalPriceStr = hasDiscount ? `${product.cost_price?.toLocaleString('vi-VN')}đ` : '';
+    const soldPercentage = Math.floor(Math.random() * 50) + 40; // mock sold logic
+
     return (
         <TouchableOpacity
             style={{ width }}
             className="bg-white rounded-2xl p-2 relative shadow-sm border border-white/60"
             activeOpacity={0.9}
-            onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
+            onPress={() => navigation.navigate('ProductDetail', { productSlug: product.slug })}
         >
-            <View className="absolute top-2 left-2 z-10 bg-red-500 rounded-lg px-2 py-0.5">
-                <Text className="text-white text-[10px] font-black">{product.discount}</Text>
-            </View>
+            {hasDiscount && (
+                <View className="absolute top-2 left-2 z-10 bg-red-500 rounded-lg px-2 py-0.5">
+                    <Text className="text-white text-[10px] font-black">GIẢM GIÁ</Text>
+                </View>
+            )}
             <View className="w-full aspect-square rounded-xl overflow-hidden mb-2">
-                <Image source={{ uri: product.image }} className="w-full h-full" resizeMode="cover" />
+                <Image source={{ uri: imageUri }} className="w-full h-full" resizeMode="cover" />
             </View>
             <View className="px-1">
                 <Text className="text-[12px] text-gray-800 font-bold leading-tight h-[32px]" numberOfLines={2}>{product.name}</Text>
-                <Text className="text-[10px] text-gray-400 mt-0.5 mb-1">{product.unit}</Text>
+                <Text className="text-[10px] text-gray-400 mt-0.5 mb-1">{product.unit || 'Hộp'}</Text>
                 <View className="mt-auto">
-                    <Text className="text-[15px] font-black text-red-600">{product.price}</Text>
-                    <Text className="text-[10px] text-gray-400 line-through">{product.originalPrice}</Text>
+                    <Text className="text-[15px] font-black text-red-600">{priceStr}</Text>
+                    {hasDiscount && <Text className="text-[10px] text-gray-400 line-through">{originalPriceStr}</Text>}
                     <View className="mt-2 space-y-1">
                         <View className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <View className="h-full bg-orange-500 rounded-full" style={{ width: `${product.soldPercentage}%` }} />
+                            <View className="h-full bg-orange-500 rounded-full" style={{ width: `${soldPercentage}%` }} />
                         </View>
                         <View className="flex-row justify-between items-center">
-                            <Text className="text-[9px] font-bold text-gray-400 uppercase">Đã bán {product.soldPercentage}%</Text>
-                            {product.isHot && <Text className="text-[9px] font-black text-red-500 italic">🔥 Sắp hết</Text>}
+                            <Text className="text-[9px] font-bold text-gray-400 uppercase">Đã bán {soldPercentage}%</Text>
+                            {soldPercentage > 80 && <Text className="text-[9px] font-black text-red-500 italic">🔥 Sắp hết</Text>}
                         </View>
                     </View>
                 </View>
