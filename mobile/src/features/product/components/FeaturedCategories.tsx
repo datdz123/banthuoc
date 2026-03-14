@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, LayoutAnimation, Platform, UIManager, ActivityIndicator } from 'react-native';
 import { useCategories, Category } from '../api/productApi';
+import { useNavigation } from '@react-navigation/native';
 
 if (Platform.OS === 'android') {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -60,16 +61,24 @@ export default function FeaturedCategories() {
     );
 }
 
-const CategoryCard = ({ category }: { category: Category }) => (
-    <TouchableOpacity
-        className="w-[48.5%] bg-white rounded-xl p-4 mb-3 items-center border border-[#EFEFEF]"
-        activeOpacity={0.7}
-    >
-        <View className="w-12 h-12 justify-center items-center mb-3 bg-blue-50/50 rounded-full">
-            <Text className="text-[28px]">{category.icon || '🛍️'}</Text>
-        </View>
-        <Text className="text-[#1A1A1A] text-[13px] font-bold text-center" numberOfLines={2}>
-            {category.name}
-        </Text>
-    </TouchableOpacity>
-);
+const CategoryCard = ({ category }: { category: Category }) => {
+    const navigation = useNavigation<any>();
+    
+    return (
+        <TouchableOpacity
+            className="w-[48.5%] bg-white rounded-xl p-4 mb-3 items-center border border-[#EFEFEF]"
+            activeOpacity={0.7}
+            onPress={() => navigation.navigate('MainTabs', { 
+                screen: 'Category', 
+                params: { categoryId: category.id } 
+            })}
+        >
+            <View className="w-12 h-12 justify-center items-center mb-3 bg-blue-50/50 rounded-full">
+                <Text className="text-[28px]">{category.icon || '🛍️'}</Text>
+            </View>
+            <Text className="text-[#1A1A1A] text-[13px] font-bold text-center" numberOfLines={2}>
+                {category.name}
+            </Text>
+        </TouchableOpacity>
+    );
+};

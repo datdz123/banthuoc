@@ -38,9 +38,6 @@
           }
         }
       ]
-    ],
-    "experiments": {
-      "reactCompiler": true
-    }
+    ]
   }
 }

@@ -7,6 +7,7 @@ import RegisterScreen from '../features/auth/RegisterScreen';
 import SplashScreen from '../features/splash/SplashScreen';
 import MainTabs from './MainTabs';
 
+import CategoryArchiveScreen from '../features/product/CategoryArchiveScreen';
 import ProductDetailScreen from '../features/product/ProductDetailScreen';
 import CheckoutScreen from '../features/cart/CheckoutScreen';
 import LoginModal from '../components/LoginModal';
@@ -25,6 +26,7 @@ export default function AppNavigator() {
                 <Stack.Screen name="MainTabs" component={MainTabs} />
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Register" component={RegisterScreen} />
+                <Stack.Screen name="CategoryArchive" component={CategoryArchiveScreen} />
                 <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
                 <Stack.Screen name="Checkout" component={CheckoutScreen} />
             </Stack.Navigator>

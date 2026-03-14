@@ -5,6 +5,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useProductDetail } from './api/productApi';
 import { useCartStore } from '../../store/useCartStore';
 import { Alert } from 'react-native';
+import ScreenHeader from '../../components/ScreenHeader';
 
 export default function ProductDetailScreen() {
     const navigation = useNavigation<any>();
@@ -49,20 +50,8 @@ export default function ProductDetailScreen() {
     return (
         <SafeAreaView className="flex-1 bg-white">
             <View className="flex-1">
-                {/* Header */}
-                <View className="flex-row items-center justify-between px-4 py-3 bg-white z-10">
-                    <TouchableOpacity onPress={() => navigation.goBack()} className="p-2 -ml-2">
-                        <Ionicons name="chevron-back" size={28} color="black" />
-                    </TouchableOpacity>
-                    <View className="flex-row items-center space-x-4">
-                        <TouchableOpacity className="p-2">
-                            <Feather name="share" size={24} color="black" />
-                        </TouchableOpacity>
-                        <TouchableOpacity className="p-2 mr-[-8px]">
-                            <MaterialCommunityIcons name="cart-outline" size={26} color="#1D52F1" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                {/* Global Screen Header containing Cart Badge */}
+                <ScreenHeader showShare={true} />
 
                 <ScrollView className="flex-1 bg-[#F1F3F9]" showsVerticalScrollIndicator={false}>
                     {/* Images Section */}

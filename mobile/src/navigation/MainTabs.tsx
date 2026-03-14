@@ -12,6 +12,9 @@ import ProfileScreen from '../features/profile/ProfileScreen';
 import PersonalDetailScreen from '../features/profile/PersonalDetailScreen';
 import UpdateProfileScreen from '../features/profile/UpdateProfileScreen';
 
+import CategoryArchiveScreen from '../features/product/CategoryArchiveScreen';
+import { useCartStore } from '../store/useCartStore';
+
 const Tab = createBottomTabNavigator();
 const ProfileStack = createNativeStackNavigator();
 
@@ -40,6 +43,8 @@ const FloatingCenterButton = (props: any) => (
 );
 
 export default function MainTabs() {
+    const totalItems = useCartStore(state => state.getBadgeCount());
+
     return (
         <Tab.Navigator
             screenOptions={{
@@ -85,12 +90,12 @@ export default function MainTabs() {
                 }}
             />
             <Tab.Screen
-                name="Reward"
-                component={CategoryScreen} // Temporary placeholder
+                name="Category"
+                component={CategoryArchiveScreen}
                 options={{
-                    tabBarLabel: 'Điểm thưởng',
+                    tabBarLabel: 'Danh mục',
                     tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name="medal-outline" size={24} color={color} />
+                        <MaterialCommunityIcons name="view-grid-outline" size={24} color={color} />
                     ),
                 }}
             />
@@ -119,6 +124,16 @@ export default function MainTabs() {
                 component={CartScreen}
                 options={{
                     tabBarLabel: 'Giỏ hàng',
+                    tabBarBadge: totalItems > 0 ? totalItems : undefined,
+                    tabBarBadgeStyle: {
+                        backgroundColor: '#EF4444',
+                        color: 'white',
+                        fontSize: 10,
+                        fontWeight: 'bold',
+                        minWidth: 16,
+                        height: 16,
+                        lineHeight: 16
+                    },
                     tabBarIcon: ({ color, size }) => (
                         <MaterialCommunityIcons name="cart-outline" size={24} color={color} />
                     ),

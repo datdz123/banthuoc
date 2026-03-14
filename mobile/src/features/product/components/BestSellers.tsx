@@ -4,6 +4,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useUIStore } from '../../../store/useUIStore';
 import { useNavigation } from '@react-navigation/native';
+import { Alert } from 'react-native';
+import { useCartStore } from '../../../store/useCartStore';
 
 import { useProducts, Product } from '../api/productApi';
 
@@ -103,7 +105,19 @@ const ProductItem = ({ product }: { product: Product }) => {
 
             <TouchableOpacity
                 className="absolute bottom-3 right-3 w-8 h-8 bg-[#F0F5FF] rounded-full items-center justify-center border border-[#D0E0FF]"
-                onPress={showLoginModal}
+                onPress={() => {
+                    useCartStore.getState().addItem({
+                        id: product.id,
+                        name: product.name,
+                        slug: product.slug,
+                        image: imageUri,
+                        price: product.retail_price,
+                        originalPrice: product.cost_price,
+                        unit: product.unit || 'Hộp',
+                        quantity: 1
+                    });
+                    Alert.alert('Thành công', 'Đã thêm sản phẩm vào giỏ hàng');
+                }}
             >
                 <MaterialCommunityIcons name="plus" size={20} color="#1D52F1" />
             </TouchableOpacity>

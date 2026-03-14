@@ -11,16 +11,20 @@ export interface CartItem {
     originalPrice: number;
     quantity: number;
     unit: string;
+    selected?: boolean;
 }
 
 interface CartState {
     items: CartItem[];
-    addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
+    addItem: (item: Omit<CartItem, 'quantity' | 'selected'> & { quantity?: number }) => void;
     removeItem: (id: number) => void;
     updateQuantity: (id: number, quantity: number) => void;
+    toggleSelection: (id: number) => void;
+    toggleAllSelection: (selected: boolean) => void;
     clearCart: () => void;
-    getTotalPrice: () => number;
-    getTotalItems: () => number;
+    getTotalPrice: () => number; // only selected
+    getTotalSelectedItems: () => number; // only selected count
+    getBadgeCount: () => number; // all items count for badge
 }
 
 export const useCartStore = create<CartState>()(
@@ -42,7 +46,7 @@ export const useCartStore = create<CartState>()(
                         ),
                     });
                 } else {
-                    set({ items: [...items, { ...item, quantity: quantityToAdd }] });
+                    set({ items: [...items, { ...item, quantity: quantityToAdd, selected: true }] });
                 }
             },
 
@@ -62,13 +66,31 @@ export const useCartStore = create<CartState>()(
                 });
             },
 
+            toggleSelection: (id) => {
+                set({
+                    items: get().items.map((i) =>
+                        i.id === id ? { ...i, selected: !i.selected } : i
+                    ),
+                });
+            },
+
+            toggleAllSelection: (selected) => {
+                set({
+                    items: get().items.map((i) => ({ ...i, selected })),
+                });
+            },
+
             clearCart: () => set({ items: [] }),
 
             getTotalPrice: () => {
-                return get().items.reduce((total, item) => total + (item.price * item.quantity), 0);
+                return get().items.reduce((total, item) => item.selected ? total + (item.price * item.quantity) : total, 0);
             },
 
-            getTotalItems: () => {
+            getTotalSelectedItems: () => {
+                return get().items.reduce((total, item) => item.selected ? total + item.quantity : total, 0);
+            },
+
+            getBadgeCount: () => {
                 return get().items.reduce((total, item) => total + item.quantity, 0);
             },
         }),
