@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator,
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useCategories, Category } from './api/productApi';
+import { useCategories, Category } from '../../api/productApi';
 import HomeHeader from '../../components/HomeHeader';
 import AppFooter from '../../components/AppFooter';
 

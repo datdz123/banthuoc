@@ -10,9 +10,14 @@ import {
     Pressable,
     Platform,
     StatusBar,
-    LayoutAnimation
+    LayoutAnimation,
+    Image as RNImage
 } from 'react-native';
-import { AntDesign, Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { AntDesign, Feather, FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { useSettings } from '../hooks/useSettings';
+import { useAuthStore } from '../store/useAuthStore';
+import { useUIStore } from '../store/useUIStore';
 
 interface HomeMenuProps {
     visible: boolean;
@@ -58,9 +63,13 @@ const MENU_DATA = [
 ];
 
 export default function HomeMenu({ visible, onClose }: HomeMenuProps) {
+    const { isLoggedIn, user, logout } = useAuthStore();
+    const { showLoginModal } = useUIStore();
     const [showModal, setShowModal] = useState(visible);
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
     const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
+    const { data: settings } = useSettings();
+    const siteName = settings?.data?.site_name || "ứng dụng";
 
     useEffect(() => {
         if (visible) {
@@ -121,19 +130,47 @@ export default function HomeMenu({ visible, onClose }: HomeMenuProps) {
                         </View>
 
                         <View className="px-5 pb-5">
-                            <Text className="text-white text-[15px] font-bold leading-6 mb-4">
-                                Đăng nhập để hưởng những đặc quyền dành riêng cho thành viên.
-                            </Text>
+                            {isLoggedIn ? (
+                                <View className="flex-row items-center">
+                                    <View className="w-14 h-14 rounded-full border border-white/40 items-center justify-center bg-white/10 mr-4 overflow-hidden">
+                                        {user?.avatar ? (
+                                            <Image source={{ uri: user.avatar } as any} className="w-full h-full" />
+                                        ) : (
+                                            <FontAwesome5 name="user-alt" size={24} color="#8fb2ff" />
+                                        )}
+                                    </View>
+                                    <View className="flex-1">
+                                        <Text className="text-white text-[17px] font-bold mb-0.5" numberOfLines={1}>
+                                            {user?.name || user?.phoneNumber || 'Người dùng'}
+                                        </Text>
+                                        <Text className="text-white/80 text-[12px]">
+                                            {user?.phoneNumber ? `${user.phoneNumber.substring(0, 4)} ${user.phoneNumber.substring(4, 7)} ${user.phoneNumber.substring(7, 10)}` : 'Thành viên'}
+                                        </Text>
+                                    </View>
+                                </View>
+                            ) : (
+                                <>
+                                    <Text className="text-white text-[15px] font-bold leading-6 mb-4">
+                                        Đăng nhập để hưởng những đặc quyền dành riêng cho thành viên.
+                                    </Text>
 
-                            <View className="flex-row">
-                                <TouchableOpacity className="bg-white rounded-full px-5 py-2 mr-3 active:opacity-80">
-                                    <Text className="text-[#2F63F6] font-semibold">Đăng nhập</Text>
-                                </TouchableOpacity>
+                                    <View className="flex-row">
+                                        <TouchableOpacity 
+                                            onPress={() => { onClose(); showLoginModal(); }}
+                                            className="bg-white rounded-full px-5 py-2 mr-3 active:opacity-80"
+                                        >
+                                            <Text className="text-[#2F63F6] font-semibold">Đăng nhập</Text>
+                                        </TouchableOpacity>
 
-                                <TouchableOpacity className="bg-[#1D4ED8] rounded-full px-5 py-2 active:opacity-80">
-                                    <Text className="text-white font-semibold">Đăng ký</Text>
-                                </TouchableOpacity>
-                            </View>
+                                        <TouchableOpacity 
+                                            onPress={() => { onClose(); showLoginModal(); }}
+                                            className="bg-[#1D4ED8] rounded-full px-5 py-2 active:opacity-80"
+                                        >
+                                            <Text className="text-white font-semibold">Đăng ký</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </>
+                            )}
                         </View>
                     </View>
 
@@ -175,13 +212,29 @@ export default function HomeMenu({ visible, onClose }: HomeMenuProps) {
                                     )}
                                 </View>
                             ))}
+
+                            {/* Logout Item */}
+                            {isLoggedIn && (
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        logout();
+                                        onClose();
+                                    }}
+                                    className="px-5 py-4 flex-row items-center border-t border-gray-50 active:bg-gray-100 mt-2"
+                                >
+                                    <Ionicons name="log-out-outline" size={20} color="#FF3B30" />
+                                    <Text className="text-[#FF3B30] font-bold text-[16px] ml-3">
+                                        Đăng xuất
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
                         </View>
                     </ScrollView>
 
                     {/* Bottom Sticky Section */}
                     <View className="border-t border-gray-100 px-5 py-4 bg-white">
                         <Text className="text-[#5A5A5A] text-[13px] font-medium mb-3">
-                            Trải nghiệm tốt hơn với ứng dụng Long Châu
+                            Trải nghiệm tốt hơn với {siteName}
                         </Text>
 
                         <TouchableOpacity className="bg-[#1D52F1] rounded-full py-2.5 flex-row items-center justify-center mb-3 active:opacity-80">

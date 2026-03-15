@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, LayoutAnimation, Platform, UIManager, ActivityIndicator } from 'react-native';
-import { useCategories, Category } from '../api/productApi';
+import { useCategories, Category } from '../../../api/productApi';
 import { useNavigation } from '@react-navigation/native';
 
 if (Platform.OS === 'android') {

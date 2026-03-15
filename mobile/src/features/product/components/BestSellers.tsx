@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { useCartStore } from '../../../store/useCartStore';
 
-import { useProducts, Product } from '../api/productApi';
+import { useProducts, Product } from '../../../api/productApi';
 
 export default function BestSellers() {
     const { data: products, isLoading } = useProducts({ limit: 5 });

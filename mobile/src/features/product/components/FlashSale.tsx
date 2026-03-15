@@ -5,7 +5,7 @@ import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { useUIStore } from '../../../store/useUIStore';
 import { useNavigation } from '@react-navigation/native';
 
-import { useProducts, Product } from '../api/productApi';
+import { useProducts, Product } from '../../../api/productApi';
 
 export default function FlashSale() {
     const { data: products } = useProducts({ limit: 4 });

@@ -1,8 +1,15 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, Linking } from 'react-native';
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
+import { useSettings } from '../hooks/useSettings';
 
 const AppFooter = () => {
+    const { data: settings } = useSettings();
+    const footerText = settings?.data?.footer_text || "© 2007 - 2026 Công ty Cổ Phần Dược Phẩm FPT Long Châu Số ĐKKD 0315275368 cấp ngày 17/09/2018 tại Sở Kế hoạch Đầu tư TPHCM";
+    const contactPhone = settings?.data?.contact_phone || "1800 6928";
+    const contactEmail = settings?.data?.contact_email || "contact@duocnamviet.site";
+    const contactAddress = settings?.data?.contact_address || "379-381 Hai Bà Trưng, P. Xuân Hoà, TP. HCM.";
+    const siteName = settings?.data?.site_name || "Nhà thuốc";
     const features = [
         {
             icon: 'shield-check',
@@ -48,27 +55,27 @@ const AppFooter = () => {
             {/* Company Info Section */}
             <View className="bg-[#F8FAFC] px-5 pt-8 pb-24">
                 <Text className="text-[#4A5568] text-[13px] leading-5 font-medium mb-4">
-                    © 2007 - 2026 Công ty Cổ Phần Dược Phẩm FPT Long Châu Số ĐKKD 0315275368 cấp ngày 17/09/2018 tại Sở Kế hoạch Đầu tư TPHCM
+                    {footerText}
                 </Text>
 
                 <Text className="text-[#4A5568] text-[13px] leading-5 mb-4 font-medium">
-                    Địa chỉ: 379-381 Hai Bà Trưng, P. Xuân Hoà, TP. HCM.
+                    Địa chỉ: {contactAddress}
                 </Text>
 
                 <View className="space-y-2 mb-6">
                     <View className="flex-row items-start mr-2">
                         <Text className="text-[#4A5568] text-[13px]">• </Text>
                         <Text className="text-[#4A5568] text-[13px]">Số điện thoại: </Text>
-                        <TouchableOpacity onPress={() => Linking.openURL('tel:02873023456')}>
-                            <Text className="text-[#1D52F1] text-[13px]">(028) 7302 3456</Text>
+                        <TouchableOpacity onPress={() => Linking.openURL(`tel:${contactPhone.replace(/\s+/g, '')}`)}>
+                            <Text className="text-[#1D52F1] text-[13px]">{contactPhone}</Text>
                         </TouchableOpacity>
                     </View>
 
                     <View className="flex-row items-start mr-2">
                         <Text className="text-[#4A5568] text-[13px]">• </Text>
                         <Text className="text-[#4A5568] text-[13px]">Email: </Text>
-                        <TouchableOpacity onPress={() => Linking.openURL('mailto:sale@nhathuoclongchau.com.vn')}>
-                            <Text className="text-[#1D52F1] text-[13px]">sale@nhathuoclongchau.com.vn</Text>
+                        <TouchableOpacity onPress={() => Linking.openURL(`mailto:${contactEmail}`)}>
+                            <Text className="text-[#1D52F1] text-[13px]">{contactEmail}</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -99,7 +106,7 @@ const AppFooter = () => {
                         resizeMode="cover"
                     />
                     <View className="py-6 items-center bg-[#F8FAFC]">
-                        <Text className="text-[#64748B] text-[10px] font-medium opacity-60">© Long Châu Pharmacy - Sức khỏe cho mọi nhà</Text>
+                        <Text className="text-[#64748B] text-[10px] font-medium opacity-60">© {siteName} - Sức khỏe cho mọi nhà</Text>
                     </View>
                 </View>
             </View>

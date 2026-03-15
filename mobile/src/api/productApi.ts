@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import axiosClient from '../../../api/axiosClient';
+import axiosClient from './axiosClient';
 
 export interface Product {
     id: number;

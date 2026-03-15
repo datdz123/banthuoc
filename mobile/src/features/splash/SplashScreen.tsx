@@ -1,13 +1,18 @@
 import React, { useEffect } from 'react';
-import { View, Text, Image, StatusBar, Animated } from 'react-native';
+import { View, Text, StatusBar, Animated } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
+import { useSettings } from '../../hooks/useSettings';
 
 export default function SplashScreen() {
     const navigation = useNavigation<any>();
     const fadeAnim = React.useRef(new Animated.Value(0)).current;
     const scaleAnim = React.useRef(new Animated.Value(0.9)).current;
+    const { data: settings } = useSettings();
+    const logoUrl = settings?.data?.logo_url;
+    const siteName = settings?.data?.site_name || "NHÀ THUỐC";
 
     useEffect(() => {
         Animated.parallel([
@@ -46,15 +51,17 @@ export default function SplashScreen() {
                 >
                     {/* Logo Area */}
                     <View className="flex-row items-center mb-10">
-                        <View className="flex-row items-center gap-1 mr-3">
-                            <View className="w-4 h-8 bg-blue-800 rounded-sm rotate-12" />
-                            <View className="w-4 h-10 bg-orange-500 rounded-sm -rotate-6" />
-                            <View className="w-4 h-8 bg-green-500 rounded-sm rotate-12" />
-                        </View>
-                        <View>
-                            <Text className="text-white text-sm font-medium tracking-tight">FPT Retail</Text>
-                            <Text className="text-white text-2xl font-black uppercase tracking-tighter">NHÀ THUỐC</Text>
-                            <Text className="text-white text-3xl font-black uppercase tracking-tighter -mt-2">LONG CHÂU</Text>
+                        {logoUrl ? (
+                            <Image source={{ uri: logoUrl }} style={{ width: 80, height: 80, marginRight: 16 }} contentFit="contain" />
+                        ) : (
+                            <View className="flex-row items-center gap-1 mr-3">
+                                <View className="w-4 h-8 bg-blue-800 rounded-sm rotate-12" />
+                                <View className="w-4 h-10 bg-orange-500 rounded-sm -rotate-6" />
+                                <View className="w-4 h-8 bg-green-500 rounded-sm rotate-12" />
+                            </View>
+                        )}
+                        <View className="justify-center">
+                            <Text className="text-white text-3xl font-black uppercase tracking-tighter">{siteName}</Text>
                         </View>
                     </View>
 

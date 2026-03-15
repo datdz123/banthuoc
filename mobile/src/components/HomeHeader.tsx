@@ -2,9 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, SafeAreaView, Platform, StatusBar } from 'react-native';
 import { Entypo, MaterialCommunityIcons, AntDesign, FontAwesome5 } from '@expo/vector-icons';
 import HomeMenu from './HomeMenu';
+import { Image } from 'expo-image';
+import { useSettings } from '../hooks/useSettings';
 
 export default function HomeHeader() {
     const [menuVisible, setMenuVisible] = useState(false);
+    const { data: settings } = useSettings();
+    const logoUrl = settings?.data?.logo_url;
+    const siteName = settings?.data?.site_name || "NHÀ THUỐC";
 
     // Typewriter effect logic
     const placeholders = [
@@ -49,13 +54,13 @@ export default function HomeHeader() {
                 </TouchableOpacity>
 
                 <View className="flex-row items-center">
-                    <MaterialCommunityIcons name="medical-bag" size={24} color="#F0712E" className="mr-2" />
-                    <View>
-                        <View className="flex-row items-baseline">
-                            <Text className="text-[#F0712E] font-bold text-[10px] italic mr-1">FPT</Text>
-                            <Text className="text-white text-[10px] font-bold">NHÀ THUỐC</Text>
-                        </View>
-                        <Text className="text-white text-sm font-black tracking-wider">LONG CHÂU</Text>
+                    {logoUrl ? (
+                         <Image source={{ uri: logoUrl }} style={{ width: 44, height: 44, marginRight: 8 }} contentFit="contain" />
+                    ) : (
+                         <MaterialCommunityIcons name="medical-bag" size={24} color="#F0712E" className="mr-2" />
+                    )}
+                    <View className="justify-center">
+                        <Text className="text-white text-base font-black tracking-wider uppercase">{siteName}</Text>
                     </View>
                 </View>
 
@@ -86,7 +91,7 @@ export default function HomeHeader() {
             <View className="flex-row items-center px-4 mt-3">
                 <AntDesign name="search" size={14} color="white" />
                 <Text className="text-white text-xs ml-2">
-                    Trung tâm tiêm chủng Long Châu <Text className="underline font-bold">Tìm hiểu ngay</Text>
+                    Trung tâm tiêm chủng {siteName} <Text className="underline font-bold">Tìm hiểu ngay</Text>
                 </Text>
             </View>
         </View>

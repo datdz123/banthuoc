@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Image, Modal, Platform, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons, Ionicons, Feather } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useProductDetail } from './api/productApi';
+import { useProductDetail } from '../../api/productApi';
 import { useCartStore } from '../../store/useCartStore';
 import { Alert } from 'react-native';
 import ScreenHeader from '../../components/ScreenHeader';

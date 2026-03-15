@@ -5,11 +5,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useUIStore } from '../../store/useUIStore';
 import { useNavigation } from '@react-navigation/native';
+import { useSettings } from '../../hooks/useSettings';
 
 export default function ProfileScreen() {
     const { isLoggedIn, user, logout } = useAuthStore();
     const { showLoginModal } = useUIStore();
     const navigation = useNavigation<any>();
+    const { data: settings } = useSettings();
+    const siteName = settings?.data?.site_name || "Nhà thuốc";
 
     useEffect(() => {
         if (!isLoggedIn) {
@@ -53,7 +56,7 @@ export default function ProfileScreen() {
                             )}
                         </View>
                         <View>
-                            <Text className="text-white text-[19px] font-bold mb-0.5">{user?.name || user?.phoneNumber || '0344585983'}</Text>
+                            <Text className="text-white text-[19px] font-bold mb-0.5">{user?.name || user?.phoneNumber || ''}</Text>
                             <Text className="text-white/80 text-[13px]">{user?.phoneNumber ? `${user.phoneNumber.substring(0, 4)} ${user.phoneNumber.substring(4, 7)} ${user.phoneNumber.substring(7, 10)}` : '0344 585 983'}</Text>
                         </View>
                     </View>
@@ -110,7 +113,7 @@ export default function ProfileScreen() {
                     </View>
 
                     {/* Về Nhà thuốc */}
-                    <Text className="text-gray-500 font-bold text-[14px] mb-2 px-1">Về Nhà thuốc FPT Long Châu</Text>
+                    <Text className="text-gray-500 font-bold text-[14px] mb-2 px-1">Về {siteName}</Text>
                     <View className="bg-white rounded-2xl mb-6 overflow-hidden border border-gray-100 shadow-sm">
                         <ProfileItem iconType="Ionicons" icon="help-circle-outline" title="Giới thiệu nhà thuốc" />
                         <ProfileItem iconType="MaterialCommunityIcons" icon="check-decagram-outline" title="Giấy phép kinh doanh" />
@@ -125,7 +128,7 @@ export default function ProfileScreen() {
                         <ProfileItem iconType="MaterialCommunityIcons" icon="shield-account-outline" title="Chính sách bảo mật dữ liệu cá nhân" />
                         <ProfileItem iconType="Ionicons" icon="ribbon-outline" title="Thông tin trung tâm bảo hành máy thiết bị y tế từng hãng" />
                         <ProfileItem iconType="Ionicons" icon="gift-outline" title={`Thể lệ chương trình "Tích điểm nhận đặc quyền"`} />
-                        <ProfileItem iconType="MaterialCommunityIcons" icon="shield-search" title="Điều khoản sử dụng Long Châu 247" />
+                        <ProfileItem iconType="MaterialCommunityIcons" icon="shield-search" title={`Điều khoản sử dụng ${siteName} 247`} />
                         <ProfileItem iconType="Ionicons" icon="headset-outline" title="Liên hệ & Hỗ trợ" isLast />
                     </View>
 

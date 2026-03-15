@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import { AntDesign, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuthStore } from '../../store/useAuthStore';
+import { Image as ExpoImage } from 'expo-image';
+import { useSettings } from '../../hooks/useSettings';
 
 export default function LoginScreen({ navigation }: any) {
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -28,6 +30,9 @@ export default function LoginScreen({ navigation }: any) {
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const { login } = useAuthStore();
+    const { data: settings } = useSettings();
+    const logoUrl = settings?.data?.logo_url;
+    const siteName = settings?.data?.site_name || "NHÀ THUỐC";
 
     useEffect(() => {
         if (otpError && otp.length > 0) {
@@ -93,12 +98,15 @@ export default function LoginScreen({ navigation }: any) {
                             </TouchableOpacity>
 
                             <View className="flex-row items-center">
-                                <View className="mr-1.5">
-                                    <Text className="text-[#F0712E] font-bold text-base italic">FPT</Text>
-                                </View>
-                                <View>
-                                    <Text className="text-[#1D52F1] text-[10px] font-bold">NHÀ THUỐC</Text>
-                                    <Text className="text-[#1D52F1] text-sm font-black">LONG CHÂU</Text>
+                                {logoUrl ? (
+                                    <ExpoImage source={{ uri: logoUrl }} style={{ width: 40, height: 40, marginRight: 8 }} contentFit="contain" />
+                                ) : (
+                                    <View className="mr-1.5">
+                                        <Text className="text-[#F0712E] font-bold text-base italic">FPT</Text>
+                                    </View>
+                                )}
+                                <View className="justify-center">
+                                    <Text className="text-[#1D52F1] text-[15px] font-black uppercase tracking-wider">{siteName}</Text>
                                 </View>
                             </View>
                             <View className="w-6" />
