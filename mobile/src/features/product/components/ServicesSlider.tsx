@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const SERVICES_DATA = [
     { icon: 'pill', title: 'Cần mua thuốc', color: '#1D52F1' },
@@ -14,6 +15,7 @@ const SERVICES_DATA = [
 ];
 
 export default function ServicesSlider() {
+    const navigation = useNavigation<any>();
     const scrollX = React.useRef(new Animated.Value(0)).current;
     const [containerWidth, setContainerWidth] = React.useState(0);
     const [contentWidth, setContentWidth] = React.useState(0);
@@ -36,7 +38,23 @@ export default function ServicesSlider() {
                 contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}
             >
                 {SERVICES_DATA.map((item, index) => (
-                    <ServiceItem key={index} {...item} />
+                    <ServiceItem key={index} {...item} onPress={() => {
+                        if (item.title === 'Cần mua thuốc') {
+                            navigation.navigate('Consultation');
+                        } else if (item.title === 'Tìm nhà thuốc') {
+                            navigation.navigate('StoreLocator');
+                        } else if (item.title === 'Mẹ và bé') {
+                            navigation.navigate('MomAndBaby');
+                        } else if (item.title === 'Đơn của tôi') {
+                            navigation.navigate('MyPrescriptions');
+                        } else if (item.title === 'Nhắc uống thuốc') {
+                            navigation.navigate('MedicineReminder');
+                        } else if (item.title === 'Kiểm tra sức khỏe') {
+                            navigation.navigate('HealthCheck');
+                        } else if (item.title === 'AR Camera') {
+                            navigation.navigate('ARCamera');
+                        }
+                    }} />
                 ))}
             </Animated.ScrollView>
 
@@ -67,8 +85,8 @@ export default function ServicesSlider() {
     );
 }
 
-const ServiceItem = ({ icon, title, color, badge }: any) => (
-    <TouchableOpacity className="items-center w-[72px] bg-white rounded-2xl p-2  border border-white relative">
+const ServiceItem = ({ icon, title, color, badge, onPress }: any) => (
+    <TouchableOpacity onPress={onPress} className="items-center w-[72px] bg-white rounded-2xl p-2  border border-white relative">
         <View className="w-[42px] h-[42px] justify-center items-center mb-1">
             <MaterialCommunityIcons name={icon} size={28} color={color} />
             {badge && (
