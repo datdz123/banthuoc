@@ -85,6 +85,24 @@ export const useProductDetail = (slug: string) => {
     });
 };
 
+// Fetch featured products
+export const fetchFeaturedProducts = async (params?: any): Promise<Product[]> => {
+    const response = await axiosClient.get<any, ApiResponse<Product[] | PaginatedData<Product>>>('/public/featured-products', { params });
+    if (Array.isArray(response.data)) {
+        return response.data;
+    } else if (response.data && Array.isArray((response.data as PaginatedData<Product>).data)) {
+        return (response.data as PaginatedData<Product>).data;
+    }
+    return [];
+};
+
+export const useFeaturedProducts = (params?: any) => {
+    return useQuery({
+        queryKey: ['featured-products', params],
+        queryFn: () => fetchFeaturedProducts(params),
+    });
+};
+
 // Fetch categories
 export const fetchCategories = async (params?: any): Promise<Category[]> => {
     const response = await axiosClient.get<any, ApiResponse<Category[]>>('/public/categories', { params });

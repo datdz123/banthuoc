@@ -14,6 +14,7 @@ import ServicesSlider from './components/ServicesSlider';
 import PromoBanners from './components/PromoBanners';
 import HealthCorner from './components/HealthCorner';
 import HealthTopics from './components/HealthTopics';
+import FeaturedProducts from './components/FeaturedProducts';
 
 export default function HomeScreen() {
     return (
@@ -46,6 +47,9 @@ export default function HomeScreen() {
 
                     {/* Sản phẩm bán chạy */}
                     <BestSellers />
+
+                    {/* Sản phẩm nổi bật */}
+                    <FeaturedProducts />
                 </View>
 
                 {/* Góc sức khỏe */}

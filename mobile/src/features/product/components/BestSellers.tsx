@@ -7,10 +7,10 @@ import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { useCartStore } from '../../../store/useCartStore';
 
-import { useProducts, Product } from '../../../api/productApi';
+import { useFeaturedProducts, Product } from '../../../api/productApi';
 
 export default function BestSellers() {
-    const { data: products, isLoading } = useProducts({ limit: 5 });
+    const { data: products, isLoading } = useFeaturedProducts({ bestseller: 1, limit: 5 });
 
     return (
         <View className="mt-8 rounded-[32px]  bg-[#E21F4D] relative">
